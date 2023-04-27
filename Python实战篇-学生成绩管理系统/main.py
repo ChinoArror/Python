@@ -5,45 +5,49 @@ filename='student.txt'
 def main():
     while True:
         menu()
-        choise=int(input('请选择：'))
-        if choise in [0,1,2,3,4,5,6,7]:
-            if choise==0:
-                answer=input('您确定要退出系统吗?y/n：')
-                if answer=='y' or answer=='Y':
-                    print('谢谢您的使用！')
-                    break
-                else:
-                    continue
-            elif choise==1:
-                insert() #录入学生系统
-            elif choise==2:
-                search() #查找
-            elif choise==3:
-                delete() #删除
-            elif choise==4:
-                modify() 
-            elif choise==5:
-                sort()
-            elif choise==6:
-                total()
-            elif choise==7:
-                show()
+        try:
+            choise=int(input('请选择：'))
+            if choise in [0,1,2,3,4,5,6,7]:
+                if choise==0:
+                    answer=input('您确定要退出系统吗?y/n：')
+                    if answer=='y' or answer=='Y':
+                        print('谢谢您的使用！')
+                        break
+                    else:
+                        continue
+                elif choise==1:
+                    insert() #录入学生系统
+                elif choise==2:
+                    search() #查找
+                elif choise==3:
+                    delete() #删除
+                elif choise==4:
+                    modify() 
+                elif choise==5:
+                    sort()
+                elif choise==6:
+                    total()
+                elif choise==7:
+                    show()
+        except:
+            print('请重新输入')
+            continue
 
 
                 
 
 def menu():
-    print('=====================学生信息管理系统=====================')
-    print('------------------------------------功能菜单-----------------------------------')
-    print('\t\t1.录入学生信息')
-    print('\t\t2.查找学生信息')
-    print('\t\t3.删除学生信息')
-    print('\t\t4.修改学生信息')
-    print('\t\t5.排序')
-    print('\t\t6.统计学生总人数')
-    print('\t\t7.显示所有学生信息')
-    print('\t\t0.退出系统')
-    print('-------------------------------------------------------------------------------')
+    print('\t=====================学生信息管理系统=====================')
+    print('\t--------------------------功能菜单------------------------')
+    print('\t\t\t1.录入学生信息')
+    print('\t\t\t2.查找学生信息')
+    print('\t\t\t3.删除学生信息')
+    print('\t\t\t4.修改学生信息')
+    print('\t\t\t5.排序')
+    print('\t\t\t6.统计学生总人数')
+    print('\t\t\t7.显示所有学生信息')
+    print('\t\t\t0.退出系统')
+    print('--------------------------------------------------------------------------')
 
 def insert():
     student_lst=[]
@@ -121,7 +125,7 @@ def search():
             if answer=='y' or answer=='Y':
                 continue
             else:
-                return    
+                break    
         else:
             print('暂未保存数据信息')
             break
