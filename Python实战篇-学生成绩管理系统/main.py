@@ -1,5 +1,4 @@
 import os
-import time
 
 filename='student.txt' #文件名
 
@@ -34,8 +33,6 @@ def main(): #定义主程序函数
             print('请重新输入')
             continue
 
-
-                
 
 def menu():
     print('\t=====================学生信息管理系统=====================')
@@ -81,41 +78,18 @@ def insert():
         student={'id':id,'name':name,'age':age,'gender':gender,'english':english,'python':python,'java':java}
         #将学生信息添加到列表
         student_lst.append(student)
-        answer=input('是否继续添加?y/n：')
-        if answer=='y' or answer== 'Y':
-            continue
-        elif answer=='n' or answer=='N':
+        try:
+            exit('添加') #执行exit()函数，询问是否退出，如不退出，则继续执行循环
+        except SystemExit: #如退出，则返回信息SystemExit，执行此项，退出循环
             break
     #调用save()，存储学生信息
     save(student_lst)
     print('学生信息录入完毕')
 
-def save(lst):
-    try: #打开文件，如还没有创建文件，则执行except，创建新文件
-        stu_txt=open(filename,'a',encoding='utf-8')
-    except:
-        stu_txt=open(filename,'w',encoding='utf-8')
-    for item in lst: #遍历列表中的学生信息，分行存储到文件中，\n表示换行
-        stu_txt.write(str(item)+'\n')
-    stu_txt.close() #关闭文件
-
-def read(filename):
-    if os.path.exists(filename): #检测文件是否存在
-        with open(filename,'r',encoding='utf-8') as rfile:
-            student_read=rfile.readlines() #将文件信息存到列表中
-        if student_read: #检测是否有学生信息
-            return student_read #return+元素，函数值，通过 元素=函数名()，将返回值赋给元素
-        else:
-            print('无学生信息')
-            raise ModuleNotFoundError
-    else:
-        print('暂未保存数据信息')
-        raise FileNotFoundError #返回错误信息，在使用函数的时候搭配try except使用
-
 def search(): #定义查询函数
     student_query=[] #定义空列表
     while True:
-        id=''
+        id='' #将变量设置为空
         name=''
         try: #调用read()，并将返回值赋给student_old，如函数返回错误信息，则执行except
             student_old=read(filename) #函数返回值赋给
@@ -146,13 +120,11 @@ def search(): #定义查询函数
         #显示查询结果
         show_student(student_query) #调用后面定义的show_student()函数
         student_query.clear() #清空新列表
-        answer=input('是否要继续查询?y/n：')
-        if answer=='y' or answer=='Y':
-            continue
-        else:
-            time.sleep(0.09) #等待0.09秒，防止报错
-            return    
-        
+        try: #询问是否退出
+            exit('查询')    
+        except SystemExit:
+            break    
+
 def delete():
     while True:
         student_id=input('请输入要删除学生的ID：')
@@ -175,57 +147,56 @@ def delete():
                 else:
                     print(f'没有找到ID为{student_id}的学生信息')
             show() #删除之后要重新展示学生信息
-        answer=input('是否继续删除?y/n：')
-        if answer=='y' or answer=='Y':
-            continue
-        else:
+        try: #询问是否退出
+            exit('删除')
+        except SystemExit:
             break
 
 def modify():
-    show() #先展示所有学生信息
-    try:
-        student_old=read(filename)
-    except:
-        return
-    student_id=input('请输入要修改的学生ID：')
-    with open(filename,'w',encoding='utf-8') as wfile:
-        for item in student_old: #遍历学生信息，将其存入字典中
-            dic=dict(eval(item))
-            if dic['id']==student_id:
-                print('找到学生信息，可以修改了') #当目标id和学生id相等时，找到目标学生
-                while True:
-                    name=input('请输入姓名：')
-                    if not name:
-                        print('输入无效，请重新输入')
-                        continue
-                    dic['name']=name
-                    gender1=int(input('请输入性别，1-男，2-女：'))
-                    if gender1==1:
-                        dic['gender']='Male' #将字典性别一项修改为新
-                    elif gender1==2:
-                        dic['gender']='Female'
-                    else:
-                        print('输入无效，请重新输入')
-                        continue
+    while True:
+        show() #先展示所有学生信息
+        try:
+            student_old=read(filename)
+        except:
+            break
+        student_id=input('请输入要修改的学生ID：')
+        with open(filename,'w',encoding='utf-8') as wfile:
+            for item in student_old: #遍历学生信息，将其存入字典中
+                dic=dict(eval(item))
+                if dic['id']==student_id:
+                    print('找到学生信息，可以修改了') #当目标id和学生id相等时，找到目标学生
+                    while True:
+                        name=input('请输入姓名：')
+                        if not name:
+                            print('输入无效，请重新输入')
+                            continue
+                        dic['name']=name
+                        gender1=int(input('请输入性别，1-男，2-女：'))
+                        if gender1==1:
+                            dic['gender']='Male' #将字典性别一项修改为新
+                        elif gender1==2:
+                            dic['gender']='Female'
+                        else:
+                            print('输入无效，请重新输入')
+                            continue
 
-                    try:
-                        dic['age']=int(input('请输入年龄：')) #修改字典年龄一项
-                        dic['english']=float(input('请输入英语成绩：'))
-                        dic['python']=float(input('请输入Python成绩：'))
-                        dic['java']=float(input('请输入Java成绩：'))
-                    except:
-                        print('输入有误，请重新输入')
-                    else: #执行完try或except后，执行else项
-                        break
-                wfile.write(str(dic)+'\n') #将修改后的字典写入文件
-                print('修改成功')
-            else:
-                wfile.write(str(dic)+'\n') #若不是目标学生，则执行此项，直接写回文件
-    answer=input('是否继续修改学生信息?y/n：')
-    if answer=='y' or answer=='Y':
-        modify() #重新执行此函数
-    else:
-        return #退出此函数
+                        try:
+                            dic['age']=int(input('请输入年龄：')) #修改字典年龄一项
+                            dic['english']=float(input('请输入英语成绩：'))
+                            dic['python']=float(input('请输入Python成绩：'))
+                            dic['java']=float(input('请输入Java成绩：'))
+                        except:
+                            print('输入有误，请重新输入')
+                        else: #执行完try或except后，执行else项
+                            break
+                    wfile.write(str(dic)+'\n') #将修改后的字典写入文件
+                    print('修改成功')
+                else:
+                    wfile.write(str(dic)+'\n') #若不是目标学生，则执行此项，直接写回文件
+        try:
+            exit('修改')
+        except SystemExit:
+            break
 
 def student_sort():
     show() #展示学生信息
@@ -261,10 +232,9 @@ def student_sort():
             print('输入有误，请重新输入')
             student_sort()
         show_student(student_new) #调用后面定义的show_student()函数
-        answer=input('是否继续排序?y/n：')
-        if answer=='y' or answer=='Y':
-            continue
-        else:
+        try:
+            exit('排序')
+        except SystemExit:
             break
 
 def total():
@@ -303,6 +273,34 @@ def show_student(lst):
                                  item.get('java'),
                                  float(item.get('english'))+float(item.get('python'))+float(item.get('java'))))
 
+def save(lst):
+    try: #打开文件，如还没有创建文件，则执行except，创建新文件
+        stu_txt=open(filename,'a',encoding='utf-8')
+    except:
+        stu_txt=open(filename,'w',encoding='utf-8')
+    for item in lst: #遍历列表中的学生信息，分行存储到文件中，\n表示换行
+        stu_txt.write(str(item)+'\n')
+    stu_txt.close() #关闭文件
+
+def read(filename):
+    if os.path.exists(filename): #检测文件是否存在
+        with open(filename,'r',encoding='utf-8') as rfile:
+            student_read=rfile.readlines() #将文件信息存到列表中
+        if student_read: #检测是否有学生信息
+            return student_read #return+元素，函数值，通过 元素=函数名()，将返回值赋给元素
+        else:
+            print('无学生信息')
+            raise ModuleNotFoundError
+    else:
+        print('暂未保存数据信息')
+        raise FileNotFoundError #返回错误信息，在使用函数的时候搭配try except使用
+
+def exit(word): #定义退出函数
+    answer=input(f'是否继续{word}?y/n：') #询问选择
+    if answer=='y' or answer== 'Y':
+        return #退出函数
+    elif answer=='n' or answer=='N':
+        raise SystemExit #返回退出信息
 
 if __name__=='__main__':
     main() #执行主程序函数
