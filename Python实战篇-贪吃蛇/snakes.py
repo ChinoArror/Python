@@ -51,8 +51,7 @@ def Your_score(score):
 
 def write_score(content):
     with open(filename,'w+',encoding='utf-8') as f:
-        s_old=f.readlines()
-        print(s_old)
+        s_old=f.readline(1)
         if s_old:
             if int(s_old)<content:
                 f.write(str(content))
@@ -60,7 +59,7 @@ def write_score(content):
             f.write(str(content))
 
 def read_score():
-    with open(filename,'w+',encoding='utf-8') as f:
+    with open(filename,'r',encoding='utf-8') as f:
         s_high=f.readline()
         if s_high:
             display_message(s_high, text_color, (550,30) )
@@ -117,7 +116,10 @@ def run():
                 if event.type == pygame.QUIT:
                     game_close = True
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT or event.key == pygame.K_a:
+                    if event.key==pygame.K_ESCAPE:
+                        game_close=True
+                        return
+                    elif event.key == pygame.K_LEFT or event.key == pygame.K_a:
                         dire='direction_left'
                     elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                         dire='direction_right'
@@ -131,7 +133,6 @@ def run():
                 score+=1
                 
                 snake_length+=1
-                print(snake_length,snake_body,snake_head)
             else:
                 snake_body.pop() #只要没吃到，就移除蛇尾
             pygame.display.update()
@@ -144,10 +145,8 @@ def run():
             for x in snake_body[1::1]: #反向遍历
                 if x == snake_head: #只要蛇头和蛇身坐标一样，即蛇碰到自己，就结束
                     game_over = True
-                print(x)
             
             clock.tick(snake_speed)
-        
         while game_over==True:
             dis.fill(background_color)
             display_message("Lost! q quit or p again", text_color, [window_width / 6, window_high / 3])
