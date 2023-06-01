@@ -1,6 +1,7 @@
 import os
+import json #使用json保存数据信息
 
-filename='student.txt' #文件名
+filename='student.json' #文件名
 
 def main(): #定义主程序函数
     while True:
@@ -83,7 +84,7 @@ def insert():
         except SystemExit: #如退出，则返回信息SystemExit，执行此项，退出循环
             break
     #调用save()，存储学生信息
-    save(student_lst)
+    save_add(student_lst) #向文件中添加学生信息
     print('学生信息录入完毕')
 
 def search(): #定义查询函数
@@ -104,7 +105,7 @@ def search(): #定义查询函数
             print('输入有误，请重新输入')
             search() #此处相当于continue，重新执行此函数
         for item in student_old: #遍历列表的内容
-            dic=dict(eval(item)) #存入字典中
+            dic=dict(item) #存入字典中
             if id!='': #条件为id不为空，即选择了使用id查询
                 if dic['id']==id: #匹配对应的id，并输出学生信息到新列表
                     student_query.append(dic)
@@ -134,18 +135,19 @@ def delete():
             except:
                 break
             flag=False #标记是否删除 
-            with open(filename,'w',encoding='utf-8') as wfile:
-                dic={}
-                for item in student_old:
-                    dic=dict(eval(item)) #将字符串转成字典
-                    if dic['id']!=student_id: #若学生id不等于要删除的学生id，则将他写回原文件中
-                        wfile.write(str(dic)+'\n') #将不需要删除的学生写回原文件，相当于删除了目标学生
-                    else:
-                        flag=True #表示已找到目标学生并删除
-                if flag:
-                    print(f'ID为{student_id}的学生信息已被删除')
+            dic={}
+            student_new=[] #定义新列表，用来存删除后新的学生列表
+            for item in student_old:
+                dic=dict(item) #将字符串转成字典
+                if dic['id']!=student_id: #若学生id不等于要删除的学生id，则将他写回原文件中
+                    student_new.append(dic) #将不需要删除的学生写入新列表，相当于删除了目标学生
                 else:
-                    print(f'没有找到ID为{student_id}的学生信息')
+                    flag=True #表示已找到目标学生并删除
+            save_back(student_new) #将删除之后新的列表写回文件，使用save_back()只将列表写入文件，不读取旧数据
+            if flag:
+                print(f'ID为{student_id}的学生信息已被删除')
+            else:
+                print(f'没有找到ID为{student_id}的学生信息')
             show() #删除之后要重新展示学生信息
         try: #询问是否退出
             exit('删除')
@@ -153,6 +155,7 @@ def delete():
             break
 
 def modify():
+    student_new=[] #定义新列表，用来存储修改后新的学生列表
     while True:
         show() #先展示所有学生信息
         try:
@@ -160,39 +163,39 @@ def modify():
         except:
             break
         student_id=input('请输入要修改的学生ID：')
-        with open(filename,'w',encoding='utf-8') as wfile:
-            for item in student_old: #遍历学生信息，将其存入字典中
-                dic=dict(eval(item))
-                if dic['id']==student_id:
-                    print('找到学生信息，可以修改了') #当目标id和学生id相等时，找到目标学生
-                    while True:
-                        name=input('请输入姓名：')
-                        if not name:
-                            print('输入无效，请重新输入')
-                            continue
-                        dic['name']=name
-                        gender1=int(input('请输入性别，1-男，2-女：'))
-                        if gender1==1:
-                            dic['gender']='Male' #将字典性别一项修改为新
-                        elif gender1==2:
-                            dic['gender']='Female'
-                        else:
-                            print('输入无效，请重新输入')
-                            continue
+        for item in student_old: #遍历学生信息，将其存入字典中
+            dic=dict(item)
+            if dic['id']==student_id:
+                print('找到学生信息，可以修改了') #当目标id和学生id相等时，找到目标学生
+                while True:
+                    name=input('请输入姓名：')
+                    if not name:
+                        print('输入无效，请重新输入')
+                        continue
+                    dic['name']=name
+                    gender1=int(input('请输入性别，1-男，2-女：'))
+                    if gender1==1:
+                        dic['gender']='Male' #将字典性别一项修改为新
+                    elif gender1==2:
+                        dic['gender']='Female'
+                    else:
+                        print('输入无效，请重新输入')
+                        continue
 
-                        try:
-                            dic['age']=int(input('请输入年龄：')) #修改字典年龄一项
-                            dic['english']=float(input('请输入英语成绩：'))
-                            dic['python']=float(input('请输入Python成绩：'))
-                            dic['java']=float(input('请输入Java成绩：'))
-                        except:
-                            print('输入有误，请重新输入')
-                        else: #执行完try或except后，执行else项
-                            break
-                    wfile.write(str(dic)+'\n') #将修改后的字典写入文件
-                    print('修改成功')
-                else:
-                    wfile.write(str(dic)+'\n') #若不是目标学生，则执行此项，直接写回文件
+                    try:
+                        dic['age']=int(input('请输入年龄：')) #修改字典年龄一项
+                        dic['english']=float(input('请输入英语成绩：'))
+                        dic['python']=float(input('请输入Python成绩：'))
+                        dic['java']=float(input('请输入Java成绩：'))
+                    except:
+                        print('输入有误，请重新输入')
+                    else: #执行完try或except后，执行else项
+                        break
+                student_new.append(dic) #若是目标学生，则将修改后的数据写入新列表
+                print('修改成功')
+            else:
+                student_new.append(dic) #若不是目标学生，则直接写入新列表
+        save_back(student_new) #将修改之后新的列表写回文件，使用save_back()只将列表写入文件，不读取旧数据
         try:
             exit('修改')
         except SystemExit:
@@ -206,7 +209,7 @@ def student_sort():
         return
     student_new=[]
     for item in student_lst: #遍历学生信息并加入新函数
-        dic=dict((eval(item)))
+        dic=dict(item)
         student_new.append(dic)
     while True: #循环，可以反复排序
         asc_or_desc=input('请选择(0-升序；1-降序)：') #询问排序模式
@@ -251,7 +254,7 @@ def show():
     except:
         return
     for item in student_lst: #遍历学生信息并写入新列表
-        student_new.append(eval(item))
+        student_new.append(item)
     show_student(student_new)#调用后面定义的show_student()函数
 
 def show_student(lst):
@@ -273,21 +276,42 @@ def show_student(lst):
                                  item.get('java'),
                                  float(item.get('english'))+float(item.get('python'))+float(item.get('java'))))
 
-def save(lst):
+def save_add(lst): #此函数先读取文件内原有数据，再和添加后的数据混合后再写入文件
+    try:
+        lst_old=read(filename) #读取旧数据
+    except:
+        lst_old=[]
     try: #打开文件，如还没有创建文件，则执行except，创建新文件
         stu_txt=open(filename,'a',encoding='utf-8')
     except:
-        stu_txt=open(filename,'w',encoding='utf-8')
-    for item in lst: #遍历列表中的学生信息，分行存储到文件中，\n表示换行
-        stu_txt.write(str(item)+'\n')
+        stu_txt=open(filename,'w+',encoding='utf-8')
+    lst_old.extend(lst) #将lst列表中的每一个值分别写入lst_old列表中，将新旧数据混合
+    dic={'member':lst_old} #定义字典，将混合后的数据写入
+    
+    stu_txt.seek(0) #文件定位到position 0，即定位到文件开头
+    stu_txt.truncate() #清空文件，即清空当前位置后的内容
+    json.dump(dic, stu_txt, indent=4) #将dic字典写入json文件，indent=用来格式化json
     stu_txt.close() #关闭文件
 
-def read(filename):
-    if os.path.exists(filename): #检测文件是否存在
-        with open(filename,'r',encoding='utf-8') as rfile:
-            student_read=rfile.readlines() #将文件信息存到列表中
+def save_back(lst): #此函数不读取旧文件，直接清空文件，写入更改后的新数据
+    try: #打开文件，如还没有创建文件，则执行except，创建新文件
+        stu_txt=open(filename,'a',encoding='utf-8')
+    except:
+        stu_txt=open(filename,'w+',encoding='utf-8')
+    dic={'member':lst} #将保存有数据的列表写入字典
+    
+    stu_txt.seek(0) #文件定位到position 0，即定位到文件开头
+    stu_txt.truncate() #清空文件，即清空当前位置后的内容
+    json.dump(dic, stu_txt, indent=4) #将dic字典写入json文件，indent=用来格式化json
+    stu_txt.close() #关闭文件
+
+def read(f_name): #读取json文件
+    if os.path.exists(f_name): #检测文件是否存在
+        with open(f_name,'r',encoding='utf-8') as rfile:
+            student_read=json.load(rfile) #读取json文件，将数据信息存到字典中
         if student_read: #检测是否有学生信息
-            return student_read #return+元素，函数值，通过 元素=函数名()，将返回值赋给元素
+            '''将字典member键对应的值，即学生信息，作为返回值传回'''
+            return student_read['member'] #return+元素，函数值，通过 元素=函数名()，将返回值赋给元素
         else:
             print('无学生信息')
             raise ModuleNotFoundError
